@@ -98,18 +98,155 @@ pip list boto | grep boto
 - Let's go to the Jenkins machine and add the Ansible Plugin :-
   Manage Jenkins --> Plugins --> Available Plugins --> search for Ansible and install
 
+- Give this command in your Jenkins machine to find the path of your ansible which is used in the tool section of Jenkins.
+```bash
+which ansible
+```
+
+- Copy that path and add it to the tools section of Jenkins at ansible installations.
+<img width="945" alt="image" src="https://github.com/rutikdevops/DevOps-Project-9/assets/109506158/2e4da92a-06d5-4811-96ec-a446c8e3c780">
 
 
 
+# 6. Ansible Playbook :-
+```bash
+---
+- name: Provisioning a new EC2 instance and security group
+  hosts: localhost
+  connection: local
+  gather_facts: False
+  tags: provisioning
+
+  pre_tasks:
+
+    - name: Gather facts
+      setup:
+
+    - name: Print python version
+      debug:
+        msg: "Using Python {{ ansible_python_version }}"
+
+    - name: Install dependencies
+      shell: "/usr/bin/python3.10 -m pip install {{ item }}"
+      loop:
+       - boto3
+       - botocore
+
+  vars:
+    ansible_python_interpreter: /usr/bin/python3.10
+    keypair: Project-1                                       # Set your key pair instead of Project-1
+    instance_type: t2.micro
+    image_id: ami-0f5ee92e2d63afc18
+    wait: yes
+    group: webserver
+    count: 1
+    region: ap-south-1
+    security_group: ec2-security-group
+    tag_name:
+      Name: Rutik-EC2                                        # If you want to change your instance name change it from here
+
+  tasks:
+    - name: Create a security group
+      amazon.aws.ec2_group:
+        name: "{{ security_group }}"
+        description: Security Group for webserver Servers
+        region: "{{ region }}"
+        rules:
+          - proto: tcp
+            from_port: 22
+            to_port: 22
+            cidr_ip: 0.0.0.0/0
+          - proto: tcp
+            from_port: 8080
+            to_port: 8080
+            cidr_ip: 0.0.0.0/0
+          - proto: tcp
+            from_port: 3000
+            to_port: 3000
+            cidr_ip: 0.0.0.0/0  
+          - proto: tcp
+            from_port: 80
+            to_port: 80
+            cidr_ip: 0.0.0.0/0
+          - proto: tcp
+            from_port: 443
+            to_port: 443
+            cidr_ip: 0.0.0.0/0
+        rules_egress:
+          - proto: all
+            cidr_ip: 0.0.0.0/0   
+      register: basic_firewall
+
+    - name: Launch the new EC2 Instance
+      amazon.aws.ec2_instance:
+        security_group: "{{ security_group }}"
+        instance_type: "{{ instance_type }}"
+        image_id: "{{ image_id }}"
+        wait: "{{ wait }}"
+        region: "{{ region }}"
+        key_name: "{{ keypair }}"
+        count: "{{ count }}"
+        tags: "{{ tag_name }}"
+        user_data: |
+          #!/bin/bash
+          sudo apt update -y
+          sudo apt install docker.io -y
+          sudo systemctl start docker
+          sudo systemctl enable docker
+          sudo docker run -d --name 2048 -p 3000:3000 sevenajay/2048:latest
+      register: ec2
+```
+- tag_name: Set your key pair instead of Project-1
+- keypair: If you want to change your instance name change it from here
 
 
+- Write a sample pipeline for Provision
+```bash
+pipeline {
+    agent any
+    tools{
+        ansible 'ansible'
+    }
+    stages {
+        stage('cleanws') {
+            steps {
+                cleanWs()
+            }
+        }
+        stage('checkout'){
+            steps{
+                git branch: 'main', url: 'https://github.com/Aj7Ay/ANSIBLE.git'
+            }
+        }
+        stage('TRIVY FS SCAN') {
+            steps {
+                sh "trivy fs . > trivyfs.txt"
+            }
+        }    
+        stage('ansible provision') {
+          steps {
+             // To suppress warnings when you execute the playbook    
+             sh "pip install --upgrade requests==2.20.1"
+             ansiblePlaybook playbook: 'ec2.yaml' 
+            }
+        }
+    }
+}
+```
+
+# 7. Stage view :-
+<img width="960" alt="image" src="https://github.com/rutikdevops/DevOps-Project-9/assets/109506158/463e4594-ccf3-4783-be05-292b0d17b54e">
+
+- Provision Ec2-instance
+<img width="959" alt="image" src="https://github.com/rutikdevops/DevOps-Project-9/assets/109506158/d997790b-28fb-43d8-a8b7-ad50c986c18a">
 
 
+- copy the Public IP of the provisioned instance
+```bash
+<public-ip:3000>
+```
 
-
-
-
-
+- Play Game 2048
 
 
 
