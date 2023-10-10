@@ -1,4 +1,5 @@
 # Automate EC2 provisioning in AWS using Jenkins and Ansible Playbook
+![Jenkins-Ansible](https://github.com/rutikdevops/DevOps-Project-9/assets/109506158/f2df6d5c-723f-447c-a581-18fe02997331)
 
 # Project Blog link :-
 
