@@ -247,6 +247,7 @@ pipeline {
 ```
 
 - Play Game 2048
+![image](https://github.com/rutikdevops/DevOps-Project-9/assets/109506158/3b72504c-020b-4aa4-8e37-15b5fcb334ef)
 
 
 
