@@ -2,6 +2,7 @@
 ![Jenkins-Ansible](https://github.com/rutikdevops/DevOps-Project-9/assets/109506158/f2df6d5c-723f-447c-a581-18fe02997331)
 
 # Project Blog link :-
+https://medium.com/@rutikdevops/automate-ec2-provisioning-in-aws-using-jenkins-and-ansible-playbook-e880b082062d
 
 # Project Overview :-
 - We will learn how to create new EC2 instances using the Ansible playbook and automate using Jenkins Pipeline. in the end, we will play the game of 2048.
